@@ -1,23 +1,23 @@
 // Color palette for different parts of the jellyfish
-const colourPalette = ['rgba(15, 240, 252, 0.6)', '#1E88E5', '#29B6F6', '#81D4FA', '#E1F5FE']; 
-// Keys representing different parts of the jellyfish
+const colourPalette = ['rgba(15, 240, 252, 0.6)', '#1E88E5', '#29B6F6', '#81D4FA', '#E1F5FE'];
 const colorKeys = ["body", "tentacle", "tentacleEnd", "tentacleEndStroke"];
 let jellyfish = [];
 let dots = [];
+let bubbles = []; // Array to hold bubble data
 let centerSphereSize, endSphereSize, endSphereStroke;
 let expansionSpeed = 2; // Control expansion speed
 
-function setup() { 
+function setup() {
   // Create canvas and initialize background and elements
   createCanvas(windowWidth, windowHeight);
   drawJellyfishBackground(); // Draw deep-sea background
-  initializeElements(); // Initialize jellyfish and background dots
+  initializeElements(); // Initialize jellyfish, dots, and bubbles
 }
 
 function drawJellyfishBackground() {
   // Set background with a gradient from dark to lighter blue
-  let bgColor = color(10, 20, 60); // Deep sea dark blue
-  let bgGradientColor = color(30, 70, 130); // Lighter blue gradient
+  let bgColor = color(10, 30, 60); // Deep sea dark blue
+  let bgGradientColor = color(30, 80, 130); // Lighter blue gradient
 
   // Draw vertical gradient from top to bottom
   for (let y = 0; y < height; y++) {
@@ -30,7 +30,7 @@ function drawJellyfishBackground() {
 
 function initializeElements() {
   // Initialize jellyfish array
-  jellyfish = []; 
+  jellyfish = [];
   const gridSize = windowWidth / 5; // Grid size
   const rows = ceil(windowHeight / gridSize); // Calculate rows
   const cols = ceil(windowWidth / gridSize); // Calculate columns
@@ -74,6 +74,22 @@ function initializeElements() {
 
   // Initialize background dots
   initializeDots(int((width * height) / 800));
+
+  // Initialize bubbles with random positions and sizes
+  initializeBubbles(50); // Number of bubbles
+}
+
+function initializeBubbles(numBubbles) {
+  bubbles = [];
+  for (let i = 0; i < numBubbles; i++) {
+    bubbles.push({
+      x: random(width),
+      y: random(height),
+      size: random(10, 30),
+      speed: random(1, 3),
+      alpha: random(100, 200),
+    });
+  }
 }
 
 function draw() {
@@ -97,6 +113,9 @@ function draw() {
 
   // Draw dots
   drawDots();
+
+  // Draw and animate bubbles
+  drawBubbles();
 }
 
 function drawJellyfish(x, y, tentacleCount, tentacleLength, colors) {
@@ -148,6 +167,24 @@ function drawTentacleEnd(x, y, colors) {
   strokeWeight(endSphereStroke);
   stroke(color(colors.tentacleEndStroke));
   ellipse(x, y, endSphereSize, endSphereSize);
+}
+
+function drawBubbles() {
+  // Draw bubbles and move them upward
+  noStroke();
+  for (let bubble of bubbles) {
+    fill(255, bubble.alpha);
+    ellipse(bubble.x, bubble.y, bubble.size);
+
+    // Move bubble upward
+    bubble.y -= bubble.speed;
+
+    // Reset bubble to the bottom when it reaches the top
+    if (bubble.y < 0) {
+      bubble.y = height + bubble.size;
+      bubble.x = random(width);
+    }
+  }
 }
 
 function mousePressed() {
