@@ -16,8 +16,8 @@ function setup() {
 
 function drawJellyfishBackground() {
   // Draw a gradient background to simulate deep ocean colors
-  let bgColor = color(10, 20, 60);
-  let bgGradientColor = color(30, 80, 140);
+  let bgColor = color(30, 80, 140);
+  let bgGradientColor = color(10, 20, 60);
 
   for (let y = 0; y < height; y++) {
     let inter = map(y, 0, height, 0, 1);
@@ -120,7 +120,7 @@ function drawJellyfish(x, y, tentacleCount, tentacleLength, colors) {
   backgroundColor.setAlpha(80); // Semi-transparent
   fill(backgroundColor);
   noStroke();
-  let backgroundSize = tentacleLength * 1.6;
+  let backgroundSize = tentacleLength * 1.5;
   ellipse(0, 0, backgroundSize, backgroundSize);
 
   // Draw each tentacle
