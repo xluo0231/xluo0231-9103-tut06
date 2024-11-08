@@ -1,25 +1,22 @@
-// Color palette for different parts of the jellyfish
 const colourPalette = ['rgba(15, 240, 252, 0.6)', '#1E88E5', '#29B6F6', '#81D4FA', '#E1F5FE'];
 const colorKeys = ["body", "tentacle", "tentacleEnd", "tentacleEndStroke"];
 let jellyfish = [];
 let dots = [];
-let bubbles = []; // Array to hold bubble data
+let bubbles = [];
+let showBubbles = false; // Control bubble appearance
 let centerSphereSize, endSphereSize, endSphereStroke;
-let expansionSpeed = 2; // Control expansion speed
+let expansionSpeed = 2;
 
 function setup() {
-  // Create canvas and initialize background and elements
   createCanvas(windowWidth, windowHeight);
-  drawJellyfishBackground(); // Draw deep-sea background
-  initializeElements(); // Initialize jellyfish, dots, and bubbles
+  drawJellyfishBackground();
+  initializeElements();
 }
 
 function drawJellyfishBackground() {
-  // Set background with a gradient from dark to lighter blue
-  let bgColor = color(10, 30, 60); // Deep sea dark blue
-  let bgGradientColor = color(30, 80, 130); // Lighter blue gradient
+  let bgColor = color(10, 30, 60);
+  let bgGradientColor = color(30, 80, 130);
 
-  // Draw vertical gradient from top to bottom
   for (let y = 0; y < height; y++) {
     let inter = map(y, 0, height, 0, 1);
     let c = lerpColor(bgColor, bgGradientColor, inter);
@@ -29,25 +26,22 @@ function drawJellyfishBackground() {
 }
 
 function initializeElements() {
-  // Initialize jellyfish array
   jellyfish = [];
-  const gridSize = windowWidth / 5; // Grid size
-  const rows = ceil(windowHeight / gridSize); // Calculate rows
-  const cols = ceil(windowWidth / gridSize); // Calculate columns
+  const gridSize = windowWidth / 5;
+  const rows = ceil(windowHeight / gridSize);
+  const cols = ceil(windowWidth / gridSize);
 
-  // Traverse grid to create jellyfish positions
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      let r = random(50, 100); // Random jellyfish body size
+      let r = random(50, 100);
       let x = col * gridSize + random(gridSize * 0.2, gridSize * 0.8);
       let y = row * gridSize + random(gridSize * 0.2, gridSize * 0.8);
 
-      // Ensure jellyfish stay within the canvas boundaries
       x = constrain(x, r, windowWidth - r);
       y = constrain(y, r, windowHeight - r);
 
-      let tentacleCount = random(8, 15); // Random number of tentacles
-      let overlapping = false; // Check for overlapping with other jellyfish
+      let tentacleCount = random(8, 15);
+      let overlapping = false;
       for (let other of jellyfish) {
         let d = dist(x, y, other.x, other.y);
         if (d < r + other.r) {
@@ -56,7 +50,6 @@ function initializeElements() {
         }
       }
 
-      // Only add jellyfish if it's not overlapping
       if (!overlapping) {
         let colors = Object.fromEntries(
           colorKeys.map(key => [key, colourPalette[floor(random(colourPalette.length))]])
@@ -66,17 +59,12 @@ function initializeElements() {
     }
   }
 
-  // Set angle mode to degrees
   angleMode(DEGREES);
-  centerSphereSize = random(10, 30); // Size of the jellyfish body center
-  endSphereSize = centerSphereSize / 2; // Size of the tentacle end circles
-  endSphereStroke = endSphereSize / 3; // Stroke size for the tentacle ends
+  centerSphereSize = random(10, 30);
+  endSphereSize = centerSphereSize / 2;
+  endSphereStroke = endSphereSize / 3;
 
-  // Initialize background dots
   initializeDots(int((width * height) / 800));
-
-  // Initialize bubbles with random positions and sizes
-  initializeBubbles(50); // Number of bubbles
 }
 
 function initializeBubbles(numBubbles) {
@@ -85,7 +73,7 @@ function initializeBubbles(numBubbles) {
     bubbles.push({
       x: random(width),
       y: random(height),
-      size: random(10, 30),
+      size: random(10, 20), // Smaller bubble size
       speed: random(1, 3),
       alpha: random(100, 200),
     });
@@ -93,43 +81,36 @@ function initializeBubbles(numBubbles) {
 }
 
 function draw() {
-  // Draw background
   drawJellyfishBackground();
   
-  // Draw all jellyfish
   for (let jelly of jellyfish) {
     if (jelly.isExpanding) {
-      // If expanding, increase expansion amount
       jelly.expansionAmount += expansionSpeed;
       if (jelly.expansionAmount > jelly.originalRadius) {
         jelly.isExpanding = false;
       }
     } else if (jelly.expansionAmount > 0) {
-      // Reduce expansion effect gradually when complete
       jelly.expansionAmount -= expansionSpeed / 2;
     }
     drawJellyfish(jelly.x, jelly.y, jelly.tentacleCount, jelly.r + jelly.expansionAmount, jelly.colors);
   }
 
-  // Draw dots
   drawDots();
 
-  // Draw and animate bubbles
-  drawBubbles();
+  if (showBubbles) {
+    drawBubbles();
+  }
 }
 
 function drawJellyfish(x, y, tentacleCount, tentacleLength, colors) {
-  // Draw the jellyfish body and tentacles
   push();
   translate(x, y);
   let angleStep = 360 / tentacleCount;
 
-  // Draw the center of the jellyfish body
   fill(color(colors.body));
   noStroke();
   ellipse(0, 0, centerSphereSize, centerSphereSize);
 
-  // Draw tentacles
   for (let i = 0; i < tentacleCount; i++) {
     drawTentacle(angleStep, tentacleLength, colors);
   }
@@ -138,7 +119,6 @@ function drawJellyfish(x, y, tentacleCount, tentacleLength, colors) {
 }
 
 function drawTentacle(angle, tentacleLength, colors) {
-  // Draw a single tentacle
   let segments = 15;
   let px, py;
 
@@ -148,7 +128,6 @@ function drawTentacle(angle, tentacleLength, colors) {
   rotate(angle);
   noFill();
 
-  // Create a curved tentacle using a sine wave
   beginShape();
   for (let i = 0; i < segments; i++) {
     px = map(i, 0, segments, 0, tentacleLength);
@@ -157,12 +136,10 @@ function drawTentacle(angle, tentacleLength, colors) {
   }
   endShape();
 
-  // Draw a small circle at the end of the tentacle
   drawTentacleEnd(px, py, colors);
 }
 
 function drawTentacleEnd(x, y, colors) {
-  // Draw the end of the tentacle with a small circle and stroke
   fill(color(colors.tentacleEnd));
   strokeWeight(endSphereStroke);
   stroke(color(colors.tentacleEndStroke));
@@ -170,16 +147,13 @@ function drawTentacleEnd(x, y, colors) {
 }
 
 function drawBubbles() {
-  // Draw bubbles and move them upward
   noStroke();
   for (let bubble of bubbles) {
     fill(255, bubble.alpha);
     ellipse(bubble.x, bubble.y, bubble.size);
 
-    // Move bubble upward
     bubble.y -= bubble.speed;
 
-    // Reset bubble to the bottom when it reaches the top
     if (bubble.y < 0) {
       bubble.y = height + bubble.size;
       bubble.x = random(width);
@@ -188,17 +162,28 @@ function drawBubbles() {
 }
 
 function mousePressed() {
-  // Trigger expansion effect for jellyfish on mouse click
   for (let jelly of jellyfish) {
     let d = dist(mouseX, mouseY, jelly.x, jelly.y);
     if (d < jelly.r) {
-      jelly.isExpanding = true; // Trigger expansion effect
-      jelly.expansionAmount = 0; // Reset expansion amount
+      jelly.isExpanding = true;
+      jelly.expansionAmount = 0;
     }
   }
 }
 
-// Initialize background dots
+function keyPressed() {
+  if (key === ' ') {
+    // Toggle bubble appearance with spacebar
+    showBubbles = !showBubbles;
+    if (showBubbles) initializeBubbles(100); // Increase number of bubbles
+  }
+  if (key === 'c' || key === 'C') {
+    // Clear bubbles on 'C' press
+    bubbles = [];
+    showBubbles = false;
+  }
+}
+
 function initializeDots(numDots) {
   dots = [];
   for (let i = 0; i < numDots; i++) {
@@ -207,7 +192,6 @@ function initializeDots(numDots) {
 }
 
 function createRandomDotsAttributes() {
-  // Generate random attributes for a single dot
   return {
     x: random(width), 
     y: random(height), 
@@ -217,7 +201,6 @@ function createRandomDotsAttributes() {
   };
 }
 
-// Draw and animate background dots
 function drawDots() {
   noStroke();
   for (let dot of dots) {
@@ -232,20 +215,17 @@ function drawDots() {
     dot.noiseOffset += 0.01;
 
     if (dot.x < 0 || width < dot.x || dot.y < 0 || height < dot.y) {
-      // If dot goes out of bounds, regenerate its attributes
       Object.assign(dot, createRandomDotsAttributes());
     }
   }
 }
 
-// Select a random color from the color palette
 function randomColor() {
   return colourPalette[floor(random(colourPalette.length))];
 }
 
 function windowResized() {
-  // Resize canvas and update element sizes on window resize
   resizeCanvas(windowWidth, windowHeight);
   initializeElements();
-  endSphereStroke = min(windowWidth, windowHeight) / 250; 
+  endSphereStroke = min(windowWidth, windowHeight) / 250;
 }
